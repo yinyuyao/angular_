@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <script src="angular.js"></script>
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0;}
+        li{list-style-type: none;}
+        ul{padding: 0;}
+        .tabbar{width: 100%;height: 64px;border-top: 1px solid #666;background: #ccc;text-align: center;position: fixed;bottom: 0;left: 0;font-size: 12px;}
+        .item{width: 33%;float: left;}
+        .item img{width: 35px;margin-top: 10px}
+        .red{color: red}
+        .goods{width: 50%;float: left}
+        .imgWrap, .detailWrap{border: 1px solid #ccc;padding: 10px 15px;}
+        .imgWrap img{width: 100%}
+        .addBtn{float: right;background: red;color: white;border-radius: 50%;border: none;width: 25px;height: 25px;outline: none;}
+        .leftDesBtn, .rightDesBtn{border: none;border-radius: 10px;padding: 8px;background: red;color: white;margin: 0 3px;outline: none;}
+        .buttonLine{height: 64px;clear: both;}
+        .top {padding: 20px; border-bottom: 1px solid #ccc; background: #eee;}
+        .shopListGoods { border-bottom: 1px solid #eee; padding: 10px;}
+        .shopListGoods img {float: left; width: 25%; margin-right: 10px;}
+        .shopListGoods div {font-size: 14px; color: #999;}
+
+
+        .b{border-bottom: 1px solid #ccc;padding:0 0 15px 10px}
+        .a{margin-bottom: 10px;border: 1px solid #ccc;padding: 20px 10px;}
+        .inner{padding: 10px;}
+        .edit{float: right;color: red;}
+        .del{float: right;padding-right: 10px;margin-left: 50px; color: red;}
+        .show{border: 1px solid #ccc;width: 250px;height: 180px;position:fixed;left: 0;top:0;right:0;bottom:0;margin: auto; background: #666;text-align: center;box-shadow: 0 0 5px #ccc;border-radius: 10px;padding: 10px}
+        .name, .tel, .addr{margin: 10px}
+        .show .anniu{margin: 5px 10px;width: 50px}
+        .active{color: red;}
+    </style>
+</head>
+<body>
+<div ng-app="myApp" ng-controller="myCtrl" class="box">
+    <div class="pages">
+        <div class="page" ng-show="selected==0">
+            <div class="goods" ng-repeat="item in arr track by $index">
+                <div class="imgWrap">
+                    <img ng-src="{{item.myUrl}}">
+                </div>
+                <div class="detailWrap">
+                    <p ng-bind="item.des| cut:true:25:' ...'"></p>
+                    <span class="red" ng-bind="item.price|currency:'¥'"></span>
+                    <button class="addBtn" ng-show="item.num==0" ng-click="addFn($index)">+</button>
+                    <p style="float: right" ng-show="item.num!=0"><button class="leftDesBtn" ng-click="des($index)">-</button>{{item.num}}<button class="rightDesBtn" ng-click="add($index)">+</button></p>
+                </div>
+            </div>
+            <div class="buttonLine"></div>
+        </div>
+        <div class="page" ng-show="selected==1">
+            <p class='top'>商品种类: {{ shopList.length }} 种; 总价: {{ counting()|currency:'￥ ' }}</p>
+            <div class="shopListGoods" ng-repeat='item in shopList'>
+                <img ng-src="{{ item.myUrl }}">
+                <div>
+                    <p>{{ item.des| cut:true:25:' ...' }}</p>
+                    <span class='price'>{{ item.price|currency:'￥ ' }}</span>
+                    <p style='float: right;' ng-show='item.num!=0'><button class='leftDesBtn' ng-click='des($index)'>-</button>{{ item.num }}<button class='rightDesBtn' ng-click='add($index)'>+</button></p>
+                </div>
+            </div>
+        </div>
+        <div class="page" ng-show="selected==2">
+            <div class="a" ng-repeat="item in arr1">
+                <div class="b" >
+                    <span ng-bind="item.a" ng-class='{"active":item.ck}' ng-click="address($index)"></span><span ng-bind="item.c" class="del" ng-click="del($index)" ></span><span ng-bind="item.b" class="edit" ng-click="edit($index)" ></span>
+                </div>
+                <div class="inner">
+                    <span ng-bind="item.name" ></span>
+                    <span ng-bind="item.tel" ></span><br/>
+                    <span ng-bind="item.addr" ></span>
+                </div>
+            </div>
+            <div class="show" ng-show="show">
+                <input type="text" ng-model="name" class="name">
+                <input type="text" ng-model="tel"  class="tel">
+                <input type="text" ng-model="addr"  class="addr"><br/>
+                <button ng-click="enter()" class="anniu">确定</button>
+                <button ng-click="clear()" class="anniu">取消</button>
+            </div>
+        </div>
+    </div>
+    <div class="tabbar">
+
+        <div class="item">
+            <img src="images/IMG_1022_39.png" ng-show="selected==0"/>
+            <img src="images/IMG_1022_23.png" ng-click="choose(0)" ng-show="selected!=0"/><br/>
+            <span ng-class="{red:selected==0}">首页</span>
+        </div>
+        <div class="item">
+            <img src="images/IMG_1022_39.png" ng-show="selected==1"/>
+            <img src="images/IMG_1022_23.png" ng-click="choose(1)" ng-show="selected!=1"/><br/>
+            <span ng-class="{red:selected==1}">购物车</span>
+        </div>
+        <div class="item">
+            <img src="images/IMG_1022_39.png" ng-show="selected==2"/>
+            <img src="images/IMG_1022_23.png" ng-click="choose(2)" ng-show="selected!=2"/><br/>
+            <span ng-class="{red:selected==2}">个人</span>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
+<script>
+    var app=angular.module('myApp',[]);
+    app.controller('myCtrl',function ($scope){
+        $scope.selected=0;
+        $scope.shopList=[];
+        $scope.arr=[
+            {myUrl:'images/1.jpg',des:'AWP步枪在供货时均有包装箱，其中有步枪、光学瞄准镜、瞄准镜座、两脚架、５个弹匣。',price:4600,num:0},
+            {myUrl:'images/2.jpg',des:'M60式7.62mm通用机枪是美国斯普林菲尔德兵工厂研制开发的，经过了T44式等多次改进。',price:5100,num:0},
+            {myUrl:'images/1.jpg',des:'AWP步枪在供货时均有包装箱，其中有步枪、光学瞄准镜、瞄准镜座、两脚架、５个弹匣。',price:4600,num:0},
+            {myUrl:'images/2.jpg',des:'M60式7.62mm通用机枪是美国斯普林菲尔德兵工厂研制开发的，经过了T44式等多次改进。',price:5100,num:0},
+            {myUrl:'images/1.jpg',des:'AWP步枪在供货时均有包装箱，其中有步枪、光学瞄准镜、瞄准镜座、两脚架、５个弹匣。',price:4600,num:0},
+            {myUrl:'images/2.jpg',des:'M60式7.62mm通用机枪是美国斯普林菲尔德兵工厂研制开发的，经过了T44式等多次改进。',price:5100,num:0},
+            {myUrl:'images/1.jpg',des:'AWP步枪在供货时均有包装箱，其中有步枪、光学瞄准镜、瞄准镜座、两脚架、５个弹匣。',price:4600,num:0},
+            {myUrl:'images/2.jpg',des:'M60式7.62mm通用机枪是美国斯普林菲尔德兵工厂研制开发的，经过了T44式等多次改进。',price:5100,num:0},
+            {myUrl:'images/1.jpg',des:'AWP步枪在供货时均有包装箱，其中有步枪、光学瞄准镜、瞄准镜座、两脚架、５个弹匣。',price:4600,num:0},
+            {myUrl:'images/2.jpg',des:'M60式7.62mm通用机枪是美国斯普林菲尔德兵工厂研制开发的，经过了T44式等多次改进。',price:5100,num:0},
+        ];
+        $scope.show=false;
+        $scope.arr1=[
+            {name:'唐三藏',tel:'15625555555',addr:'东土大唐',a:'默认地址',b:'编辑',c:'删除',bol:false,ck:true},
+            {name:'孙悟空',tel:'15625555555',addr:'花果山水帘洞',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'猪八戒',tel:'15625555555',addr:'高老庄',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'沙和尚',tel:'15625555555',addr:'流沙河',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'玉兔精',tel:'15625555555',addr:'银河系广寒宫',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'玉帝',tel:'15625555555',addr:'天庭',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'太上老君',tel:'15625555555',addr:'兜率宫',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'凹凸曼',tel:'15625555555',addr:'M78星云',a:'设为默认',b:'编辑',c:'删除',bol:false,ck:false},
+            {name:'薛子朕',tel:'15625555555',addr:'假卐家',a:'设为默认',b:'编辑',c:'删除',bol:false,showing:true,ck:false}
+        ];
+        $scope.del=function (index) {
+            $scope.arr1.splice(index,1);
+            if(index==0){
+                $scope.arr1[0].ck=true;
+                $scope.arr1[0].a = '默认地址';
+            }
+        };
+        $scope.address=function (index) {
+            for (var i=0;i<$scope.arr1.length;i++){
+                $scope.arr1[i].ck = false;
+                $scope.arr1[i].a = '设为默认'
+            }
+            $scope.arr1[index].ck = true;
+            $scope.arr1[index].a = '默认地址';
+            var newArr=$scope.arr1[index];
+            $scope.arr1.splice(index,1);
+            $scope.arr1.unshift(newArr)
+        };
+        $scope.edit=function (index) {
+            $scope.show=true;
+            $scope.name=$scope.arr1[index].name;
+            $scope.tel=$scope.arr1[index].tel;
+            $scope.addr=$scope.arr1[index].addr;
+
+            $scope.newIndex=index
+        };
+        $scope.enter=function () {
+            $scope.show=false;
+            $scope.arr1[$scope.newIndex].name=$scope.name;
+            $scope.arr1[$scope.newIndex].tel=$scope.tel;
+            $scope.arr1[$scope.newIndex].addr=$scope.addr
+        };
+        $scope.clear=function () {
+            $scope.show=false
+        }
+        $scope.choose=function (i) {
+            $scope.selected=i;
+            if(i==0){
+                $scope.shopList=[];
+            }
+            if(i==2){
+                $scope.arr.forEach(function (item) {
+                    if(item.num){
+                        $scope.shopList.push(item)
+                    }
+
+                })
+
+            }
+            console.log($scope.shopList)
+        };
+        $scope.addFn=function (index) {
+            $scope.arr[index].num++;
+
+
+        };
+        $scope.add=function (index) {
+            $scope.arr[index].num++
+        };
+        $scope.des=function (index) {
+            $scope.arr[index].num--
+        };
+        $scope.counting=function () {
+            $scope.allMoney=0;
+            $scope.shopList.forEach(function (item) {
+                $scope.allMoney+=item.num*item.price
+
+            });
+            return $scope.allMoney
+        }
+
+    });
+    app.filter('cut', function () {
+        return function (value, wordwise, max, tail) {
+            if (!value) return '';
+            max = parseInt(max, 10);
+            if (!max) return value;
+            if (value.length <= max) return value;
+            value = value.substr(0, max);
+            if (wordwise) {
+                var lastspace = value.lastIndexOf(' ');
+                if (lastspace != -1) {
+                    value = value.substr(0, lastspace);
+                }
+            }
+            return value + (tail || ' …');
+        };
+    });
+</script>
